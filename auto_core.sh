@@ -30,6 +30,7 @@ gene_an="${WD}/genomic-features/hybrid_genes.gff"
 hybrid_bed="${WD}/genomic-features/hybrid_genes.bed"
 operons="${WD}/genomic-features/operon-mapper/operons.tsv"
 operon_gff="${WD}/genomic-features/operon-mapper/operon-mapper_annot.gff"
+operon_list="${WD}/genomic-features/operon-mapper/operon_list.tsv"
 dna_annot="${WD}/genomic-features/operon-mapper/DNA_annot.fasta"
 
 # Other study inputs / resources.
@@ -110,6 +111,10 @@ tree="${SCRIPT_DIR}/tree_phylo.py"
 
 # Referenced by the supplied control-control validation shell after its DMR runs.
 control_validation="${SCRIPT_DIR}/section2_replicate_validation.py"
+
+# Later control-state ME / subsequent methylation-response analysis.
+me_control_entropy="${SCRIPT_DIR}/modkit_entropy_20x.sh"
+me_node_enrichment="${SCRIPT_DIR}/me_node_enrichment_v4.py"
 
 
 #############################################
@@ -1200,6 +1205,44 @@ ent_stat_C(){
 
 
 #############################################
+# (7C) CONTROL-STATE ME / LATER METHYLATION RESPONSE
+#############################################
+#
+# Later analysis tested whether methylomic-entropy structure in the pooled
+# controls was associated with sites that subsequently showed the methylation
+# responses represented in NEW_META_report.tsv.
+#
+# The saved Enterococcus analysis first generated pooled control ME tracks from
+# HC1-HC3, VC1-VC3 and AC1-AC3 for 6mA, 5mC and 4mC, then ran
+# me_node_enrichment_v4.py against the final methylation metadata and #NEW DMR
+# tree. Commands below retain the saved Enterococcus invocation structure.
+
+me_upgrade="${loc}/methyl/#NEW/UPGRADE"
+
+# Generate the pooled control-state ME tracks:
+#   ${me_upgrade}/4mC_ME/
+#   ${me_upgrade}/5mC_ME/
+#   ${me_upgrade}/6mA_ME/
+#
+# This helper retains the historical entropy/subsampling procedure used for
+# this later analysis.
+#bash "$me_control_entropy"
+
+# Test whether control-state ME is associated with later methylation response.
+#python "$me_node_enrichment" \
+#  --metadata "${loc}/NEW_META_report.tsv" \
+#  --fasta "$GENOME" \
+#  --fai "$fai" \
+#  --gff "$PGAP" \
+#  --operons "$operon_list" \
+#  --dmr-root "${loc}/methyl/#NEW/" \
+#  --me 4mC x "${me_upgrade}/4mC_ME/" \
+#  --me 5mC x "${me_upgrade}/5mC_ME/" \
+#  --me 6mA x "${me_upgrade}/6mA_ME/" \
+#  -o "${me_upgrade}/ME_enritchment"
+
+
+#############################################
 # (8) METHYLATION ENRICHMENT
 #############################################
 
@@ -1449,3 +1492,4 @@ annot_2="${loc}/MTase/MTase-search/homology/REFERENCES/annot.faa"
 #  -o2 "${tree_out}TREE_2.png" \
 #  --hm1 "${tree_out}HEAT_1.png" \
 #  --hm2 "${tree_out}HEAT_2.png"
+
